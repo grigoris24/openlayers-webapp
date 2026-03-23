@@ -28,3 +28,79 @@ html, body {
   width: 100%;
   height: 100%;
 }
+
+.location-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  cursor: grab;
+  background: #16213e;
+  border: 1px solid #0f3460;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  transition: background 0.2s;
+}
+
+.location-item:hover {
+  background: #0f3460;
+}
+
+.location-item:active {
+  cursor: grabbing;
+}
+
+.loc-name {
+  flex: 1;
+  font-size: 13px;
+}
+
+.renameButton {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
+.renameButton:hover {
+  color: white;
+}
+
+.deleteButton {
+  width: 20px;
+  height: 20px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.deleteButton:hover {
+  background-color: #c0392b;
+}
+
+#sidebar h1 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+#manualLocation {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 50px;
+}
+
+#manualLocation button,
+#manualLocation input {
+  width: fit-content;
+}
+
