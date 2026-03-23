@@ -4,8 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenLayers Web App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@9.2.4/ol.css">
+    <script src="https://cdn.jsdelivr.net/npm/ol@9.2.4/dist/ol.js"></script>
 </head>
 <body>
+
+<div id="app">
+    <aside id="sidebar">
+        <h1>Route Planner</h1>
+        <ul id="locations"></ul>
+    </aside>
+    <main id="map-container">
+        <div id="map"></div>
+    </main>
+</div>
     
+
+<script src="app.js"></script>
 </body>
 </html>
