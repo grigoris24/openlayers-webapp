@@ -104,3 +104,8 @@ html, body {
   width: fit-content;
 }
 
+#clearListButton {
+    display: block;
+    margin-left: auto;
+    margin-bottom: 10px;
+}

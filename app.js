@@ -1,5 +1,3 @@
-
-
 const map = new ol.Map({
   target: 'map',
   layers: [
@@ -131,5 +129,32 @@ function renderLocations() {
     liLocation.appendChild(deleteButton);
     locationsList.appendChild(liLocation);
     vectorLayer.changed();
+    emptyList();
   });
+}
+
+const longitude = document.getElementById("longitude");
+const latitude = document.getElementById("latitude");
+
+document.getElementById("clearListButton").addEventListener("click", function() {
+    document.getElementById("locations").innerHTML = "";
+    locations.length = 0;
+    vectorSource.clear();
+    emptyList();
+    nextId = 1;
+})
+
+document.addEventListener("DOMContentLoaded", function() {
+    longitude.value = "";
+    latitude.value = "";
+    emptyList();
+})
+
+function emptyList() {
+    const trips = document.getElementById("trips");
+    if (locations.length === 0) {
+        trips.textContent = "No locations selected.";
+    } else {
+        trips.textContent = "";
+    }
 }
