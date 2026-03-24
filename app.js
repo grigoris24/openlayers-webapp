@@ -1,13 +1,14 @@
+//When page loads, empty values and empty list, not really needed unless we use a storage option
 document.addEventListener("DOMContentLoaded", function() {
     longitude.value = "";
     latitude.value = "";
     emptyList();
 })
+//
 
 //Map
-
 const map = new ol.Map({
-  target: 'map',
+  target: 'map', //where to render the map, id map here
   layers: [
     new ol.layer.Tile({
       source: new ol.source.XYZ({
@@ -17,14 +18,14 @@ const map = new ol.Map({
     })
   ],
   view: new ol.View({
-    center: ol.proj.fromLonLat([23.7275, 37.9838]),
-    zoom: 6
+    center: ol.proj.fromLonLat([23.7275, 37.9838]), //Where to center the map when page loads
+    zoom: 10 //Zoom level to show map
   })
 });
 
-const vectorSource = new ol.source.Vector();
+const vectorSource = new ol.source.Vector(); //This is the collection of pins and lines
 
-const vectorLayer = new ol.layer.Vector({
+const vectorLayer = new ol.layer.Vector({  //vectorLayer is where we display pins and lines
   source: vectorSource,
   style: function(feature) {
     if (feature.get('type') === 'route') {
@@ -53,16 +54,15 @@ const vectorLayer = new ol.layer.Vector({
     });
     }
 });
-
 //
 
-//Right click on map
+//Right click on map, removes clicked pins
 map.on('contextmenu', function(event) {
     event.originalEvent.preventDefault();
     const feature = map.forEachFeatureAtPixel(event.pixel, function(f) { return f; });
     if (feature && feature.get('type') !== 'route') {
         const index = locations.findIndex(l => l.feature === feature);
-        if (index !== -1) {
+        if (index !== -1) { //If no matching location is found
             vectorSource.removeFeature(feature);
             locations.splice(index, 1);
             clearRoute();
@@ -70,11 +70,9 @@ map.on('contextmenu', function(event) {
         }
     }
 });
-
 //
 
 //Change mouse when hover pin
-
 map.on('pointermove', function(event) {
     const feature = map.forEachFeatureAtPixel(event.pixel, function(f) { return f; });
     if (feature && feature.get('type') !== 'route') {
@@ -83,14 +81,14 @@ map.on('pointermove', function(event) {
         map.getViewport().style.cursor = '';
     }
 });
+//
 
-// 
+map.addLayer(vectorLayer); //This makes the vector data which are pins and routes visible on map
 
-map.addLayer(vectorLayer);
+const locations = []; //Array list of locations
+let nextId = 1; //Location number in name
 
-const locations = [];
-let nextId = 1;
-
+//When we click on map, if there's no pin there it adds it, also adds it in renderLocations() list
 map.on('singleclick', function(event) {
   const feature = map.forEachFeatureAtPixel(event.pixel, function(f) { return f; });
 
@@ -106,9 +104,11 @@ map.on('singleclick', function(event) {
   const coords = ol.proj.toLonLat(event.coordinate);
   addLocation(coords[0], coords[1]);
 });
+//
 
-let dragSrcId = null;
+let dragSrcId = null; //Variable for drag and drop
 
+//Main function to render the locations in list
 function renderLocations() {
   const locationsList = document.getElementById("locations");
   locationsList.innerHTML = "";
@@ -160,6 +160,8 @@ function renderLocations() {
     nameSpan.textContent = location.name + ' (' + location.lon.toFixed(4) + ', ' + location.lat.toFixed(4) + ')';
     nameSpan.classList.add("loc-name");
 
+    const renameDelete = document.createElement("span");
+    renameDelete.classList.add("renameDelete");
     const renameButton = document.createElement("button");
     renameButton.textContent = "✎";
     renameButton.title = "Rename";
@@ -169,6 +171,7 @@ function renderLocations() {
       const input = document.createElement("input");
       input.type = "text";
       input.value = location.name;
+      input.classList.add("loc-name-input");
       nameSpan.replaceWith(input);
       input.focus();
 
@@ -201,8 +204,9 @@ function renderLocations() {
     liLocation.appendChild(dragHandle);
     liLocation.appendChild(numberSpan);
     liLocation.appendChild(nameSpan);
-    liLocation.appendChild(renameButton);
-    liLocation.appendChild(deleteButton);
+    renameDelete.appendChild(renameButton);
+    renameDelete.appendChild(deleteButton);
+    liLocation.appendChild(renameDelete);
     locationsList.appendChild(liLocation);
   });
 
@@ -219,9 +223,9 @@ function renderLocations() {
   calculateBtn.disabled = selectedCount < 2;
   calculateBtn.title = selectedCount < 2 ? "Select at least 2 locations to calculate a route" : "";
 }
+//
 
 //Longitude/latitude form, to also work by pressing Enter
-
 const longitude = document.getElementById("longitude");
 const latitude = document.getElementById("latitude");
 
@@ -232,13 +236,10 @@ document.getElementById("longitude").addEventListener("keydown", function(e) {
 document.getElementById("latitude").addEventListener("keydown", function(e) {
     if (e.key === "Enter") document.getElementById("manualLocationButton").click();
 });
-
 //
 
 //Button that clears the list
-
 document.getElementById("clearListButton").addEventListener("click", function() {
-    document.getElementById("locations").innerHTML = "";
     locations.length = 0;
     vectorSource.clear();
     emptyList();
@@ -246,9 +247,9 @@ document.getElementById("clearListButton").addEventListener("click", function() 
     clearRoute();
     renderLocations();
 })
-
 // 
 
+//Empties location list
 function emptyList() {
     const trips = document.getElementById("trips");
     if (locations.length === 0) {
@@ -258,7 +259,9 @@ function emptyList() {
         trips.textContent = "";
     }
 }
+// 
 
+//Errors in long/lat
 document.getElementById("manualLocationButton").addEventListener("click", function() {
     const long = parseFloat(longitude.value);
     const lat = parseFloat(latitude.value);
@@ -289,51 +292,48 @@ function showError(message) {
     const error = document.getElementById("locationError");
     error.textContent = message;
 }
+//
 
-function clearError() {
-    const error = document.getElementById("locationError");
-    error.textContent = "";
-}
-
+//Errors in Routes
 function showRouteError(message) {
     document.getElementById("routeError").textContent = message;
 }
 
-function clearRouteError() {
-    document.getElementById("routeError").textContent = "";
-}
-
 document.getElementById("calculateRoute").addEventListener("click", function() {
-    const selected = locations.filter(l => l.selected);
+    const selected = locations.filter(l => l.selected); //Only takes the selected locations
 
     if (selected.length < 2) {
         showRouteError("Please select at least 2 locations to calculate a route.");
         return;
     }
 
-    if (routeFeature) {
+    if (routeFeature) { //If there's a previous route, it deletes it
         vectorSource.removeFeature(routeFeature);
     }
 
-    const coords = selected.map(l => ol.proj.fromLonLat([l.lon, l.lat]));
+    const coords = selected.map(l => ol.proj.fromLonLat([l.lon, l.lat])); //Converts coordinates for open layers
 
-    routeFeature = new ol.Feature({
+    routeFeature = new ol.Feature({ //Creates a vector feature, a line
     geometry: new ol.geom.LineString(coords),
     type: 'route'
 });
 
-    vectorSource.addFeature(routeFeature);
+    vectorSource.addFeature(routeFeature); //Adds the route to the map
 });
+//
 
-let routeFeature = null;
+let routeFeature = null; //When page loads, it has no routes
 
+//Deletes the route
 function clearRoute() {
     if (routeFeature) {
-        vectorSource.removeFeature(routeFeature);
-        routeFeature = null;
+        vectorSource.removeFeature(routeFeature); //Removes the line in the route
+        routeFeature = null; //Removes the route
     }
 }
+//
 
+//Fix for map when scrolling far left or far right(it would not add pins correctly)
 function addLocation(lon, lat) {
     lon = ((lon + 180) % 360 + 360) % 360 - 180;
     
@@ -354,5 +354,6 @@ function addLocation(lon, lat) {
     nextId++;
     renderLocations();
 }
+//
 
 renderLocations();
