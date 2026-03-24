@@ -56,12 +56,35 @@ const vectorLayer = new ol.layer.Vector({
 
 //
 
-//Disable right click on map
-document.getElementById("map").addEventListener("contextmenu", function(e) {
-    e.preventDefault();
+//Right click on map
+map.on('contextmenu', function(event) {
+    event.originalEvent.preventDefault();
+    const feature = map.forEachFeatureAtPixel(event.pixel, function(f) { return f; });
+    if (feature && feature.get('type') !== 'route') {
+        const index = locations.findIndex(l => l.feature === feature);
+        if (index !== -1) {
+            vectorSource.removeFeature(feature);
+            locations.splice(index, 1);
+            clearRoute();
+            renderLocations();
+        }
+    }
 });
 
 //
+
+//Change mouse when hover pin
+
+map.on('pointermove', function(event) {
+    const feature = map.forEachFeatureAtPixel(event.pixel, function(f) { return f; });
+    if (feature && feature.get('type') !== 'route') {
+        map.getViewport().style.cursor = 'pointer';
+    } else {
+        map.getViewport().style.cursor = '';
+    }
+});
+
+// 
 
 map.addLayer(vectorLayer);
 
@@ -69,24 +92,19 @@ const locations = [];
 let nextId = 1;
 
 map.on('singleclick', function(event) {
+  const feature = map.forEachFeatureAtPixel(event.pixel, function(f) { return f; });
+
+  if (feature && feature.get('type') !== 'route') {
+    const loc = locations.find(l => l.feature === feature);
+    if (loc) {
+      loc.selected = !loc.selected;
+      renderLocations();
+      return;
+    }
+  }
+
   const coords = ol.proj.toLonLat(event.coordinate);
-  const feature = new ol.Feature({
-    geometry: new ol.geom.Point(event.coordinate)
-  });
-  vectorSource.addFeature(feature);
-  
-  const newLocation = {
-    id: nextId,
-    name: 'Location ' + nextId,
-    lon: coords[0],
-    lat: coords[1],
-    feature: feature,
-    selected: false
-  };
-  
-  locations.push(newLocation);
-  nextId++;
-  renderLocations();
+  addLocation(coords[0], coords[1]);
 });
 
 let dragSrcId = null;
@@ -142,7 +160,7 @@ function renderLocations() {
     renameButton.title = "Rename";
     renameButton.classList.add("renameButton");
     renameButton.addEventListener("click", function(e) {
-      e.stopPropagation(w);
+      e.stopPropagation();
       const input = document.createElement("input");
       input.type = "text";
       input.value = location.name;
@@ -253,27 +271,10 @@ document.getElementById("manualLocationButton").addEventListener("click", functi
         return;
     }
 
-    const coords = ol.proj.fromLonLat([long, lat]);
-    const feature = new ol.Feature({
-        geometry: new ol.geom.Point(coords)
-    });
-    vectorSource.addFeature(feature);
-
-    const newLocation = {
-        id: nextId,
-        name: 'Location ' + nextId,
-        lon: long,
-        lat: lat,
-        feature: feature,
-        selected: false
-    };
-
-    locations.push(newLocation);
-    nextId++;
+    addLocation(long, lat);
     longitude.value = "";
     latitude.value = "";
-    renderLocations();
-});
+    });
 
 function showError(message) {
     const error = document.getElementById("locationError");
@@ -322,6 +323,27 @@ function clearRoute() {
         vectorSource.removeFeature(routeFeature);
         routeFeature = null;
     }
+}
+
+function addLocation(lon, lat) {
+    lon = ((lon + 180) % 360 + 360) % 360 - 180;
+    
+    const coords = ol.proj.fromLonLat([lon, lat]);
+    const feature = new ol.Feature({
+        geometry: new ol.geom.Point(coords)
+    });
+    vectorSource.addFeature(feature);
+    const newLocation = {
+        id: nextId,
+        name: 'Location ' + nextId,
+        lon: lon,
+        lat: lat,
+        feature: feature,
+        selected: false
+    };
+    locations.push(newLocation);
+    nextId++;
+    renderLocations();
 }
 
 renderLocations();

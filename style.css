@@ -14,10 +14,12 @@ html, body {
 }
 
 #sidebar {
-  width: 320px;
-  background: #202038;
-  color: white;
-  padding: 20px;
+    width: 320px;
+    background: #1a1a2e;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 #map-container {
@@ -213,4 +215,27 @@ html, body {
     color: #4f6ef7;
     min-width: 20px;
     text-align: center;
+}
+
+#footer {
+    margin-top: auto;
+    padding-top: 20px;
+    font-size: 11px;
+    color: #555;
+    text-align: center;
+}
+
+#locations-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+#locations {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    min-height: 0;
 }
