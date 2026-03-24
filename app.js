@@ -356,4 +356,28 @@ function addLocation(lon, lat) {
 }
 //
 
+//Sidebar open and close buttons
+const openBtn = document.getElementById("openSidebar");
+const closeBtn = document.getElementById("closeSidebar");
+const sidebar = document.getElementById("sidebar");
+
+closeBtn.addEventListener("click", () => {
+    sidebar.style.display = "none";
+
+    openBtn.classList.remove("hidden");  
+    closeBtn.classList.add("hidden");  
+
+    setTimeout(() => map.updateSize(), 200);
+});
+
+openBtn.addEventListener("click", () => {
+    sidebar.style.display = "flex";
+
+    openBtn.classList.add("hidden");  
+    closeBtn.classList.remove("hidden"); 
+
+    setTimeout(() => map.updateSize(), 200);
+});
+//
+
 renderLocations();

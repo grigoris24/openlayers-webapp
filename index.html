@@ -12,7 +12,10 @@
 
 <div id="app">
     <aside id="sidebar">
-        <h1>OpenLayers Web App</h1>
+        <div id="title">
+            <h1>OpenLayers Web App</h1>
+            <button id="closeSidebar" title="Close Sidebar">X</button>
+        </div>
        <div id="manualLocation">
             <label>Longitude</label>
             <input type="text" id="longitude" placeholder="e.g. 23.7275">
@@ -38,6 +41,7 @@
     </aside>
     <main id="map-container">
         <div id="map"></div>
+        <button id="openSidebar" class="hidden" title="Open Sidebar">☰</button>
     </main>
 </div>
     
