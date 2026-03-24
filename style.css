@@ -239,3 +239,28 @@ html, body {
     padding-right: 4px;
     min-height: 0;
 }
+
+.dragHandle {
+    color: #555;
+    cursor: grab;
+    font-size: 16px;
+    padding: 0 2px;
+    user-select: none;
+}
+
+.dragHandle:hover {
+    color: #aaa;
+}
+
+#locations-hint {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 8px;
+    display: none;
+}
+
+#trips {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}

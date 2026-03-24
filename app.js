@@ -147,6 +147,11 @@ function renderLocations() {
       renderLocations();
     });
 
+    const dragHandle = document.createElement("span");
+    dragHandle.textContent = "⠿";
+    dragHandle.classList.add("dragHandle");
+    dragHandle.title = "Drag to reorder";
+
     const numberSpan = document.createElement("span");
     numberSpan.textContent = locations.indexOf(location) + 1;
     numberSpan.classList.add("loc-number");
@@ -193,12 +198,16 @@ function renderLocations() {
       renderLocations();
     });
 
+    liLocation.appendChild(dragHandle);
     liLocation.appendChild(numberSpan);
     liLocation.appendChild(nameSpan);
     liLocation.appendChild(renameButton);
     liLocation.appendChild(deleteButton);
     locationsList.appendChild(liLocation);
   });
+
+  const hint = document.getElementById("locations-hint");
+  hint.style.display = locations.length > 0 ? "block" : "none";
 
   vectorLayer.changed();
   emptyList();
