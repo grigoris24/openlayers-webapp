@@ -12,11 +12,14 @@
 
 <div id="app">
     <aside id="sidebar">
-        <h1>Route Planner</h1>
-        <div id="manualLocation">
-            <input type="text" id="longitude" placeholder="Longitude">
-            <input type="text" id="latitude" placeholder="Latitude">
-            <button id="manualLocationButton">Add location</button>
+        <h1>OpenLayers Web App</h1>
+       <div id="manualLocation">
+            <label>Longitude</label>
+            <input type="text" id="longitude" placeholder="e.g. 23.7275">
+            <label>Latitude</label>
+            <input type="text" id="latitude" placeholder="e.g. 37.9838">
+            <button id="manualLocationButton">+ Add Location</button>
+            <p id="locationError" class="error-msg"></p>
         </div>
 
         <button id="clearListButton">Clear List</button>
@@ -24,6 +27,8 @@
         <h2>Locations:</h2>
         <p id="trips">asdasasd</p>
         <ul id="locations"></ul>
+        <button id="calculateRoute">Calculate Route</button>
+        <p id="routeError" class="error-msg"></p>
     </aside>
     <main id="map-container">
         <div id="map"></div>

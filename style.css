@@ -15,7 +15,7 @@ html, body {
 
 #sidebar {
   width: 320px;
-  background: #1a1a2e;
+  background: #202038;
   color: white;
   padding: 20px;
 }
@@ -95,17 +95,122 @@ html, body {
 #manualLocation {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    margin-bottom: 50px;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    padding: 12px;
 }
 
-#manualLocation button,
+#manualLocation label {
+    font-size: 11px;
+    color: #aaa;
+    margin-bottom: 2px;
+}
+
 #manualLocation input {
-  width: fit-content;
+    width: 100%;
+    background: #0f3460;
+    border: 1px solid #1a1a4e;
+    border-radius: 6px;
+    color: white;
+    padding: 7px 10px;
+    font-size: 13px;
+    outline: none;
+}
+
+#manualLocation input:focus {
+    border-color: #4f6ef7;
+}
+
+#manualLocation input::placeholder {
+    color: #555;
+}
+
+#manualLocation button {
+    width: 100%;
+    background: #16213e;
+    color: white;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+#manualLocation button:hover {
+    background: #0f3460;
 }
 
 #clearListButton {
     display: block;
     margin-left: auto;
     margin-bottom: 10px;
+    background: transparent;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+#clearListButton:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+#clearListButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.error-msg {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.selected {
+    background: #0f3460;
+    border: 1px solid #4f6ef7;
+}
+
+#calculateRoute {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background: #4f6ef7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+#calculateRoute:hover:not(:disabled) {
+    background: #6b86ff;
+    transform: translateY(-1px);
+}
+
+#calculateRoute:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+#calculateRoute:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.loc-number {
+    font-weight: bold;
+    color: #4f6ef7;
+    min-width: 20px;
+    text-align: center;
 }

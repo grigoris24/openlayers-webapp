@@ -1,3 +1,11 @@
+document.addEventListener("DOMContentLoaded", function() {
+    longitude.value = "";
+    latitude.value = "";
+    emptyList();
+})
+
+//Map
+
 const map = new ol.Map({
   target: 'map',
   layers: [
@@ -19,11 +27,22 @@ const vectorSource = new ol.source.Vector();
 const vectorLayer = new ol.layer.Vector({
   source: vectorSource,
   style: function(feature) {
+    if (feature.get('type') === 'route') {
+      return new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: '#4f6ef7',
+          width: 3
+        })
+      });
+    }
+
     const index = locations.findIndex(l => l.feature === feature);
+    const location = locations[index];
+    const isSelected = location ? location.selected : false;
     return new ol.style.Style({
       image: new ol.style.Circle({
         radius: 12,
-        fill: new ol.style.Fill({ color: '#4f6ef7' }),
+        fill: new ol.style.Fill({ color: isSelected ? '#4fdb9a' : '#4f6ef7' }),
         stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
       }),
       text: new ol.style.Text({
@@ -32,8 +51,17 @@ const vectorLayer = new ol.layer.Vector({
         font: 'bold 11px sans-serif'
       })
     });
-  }
+    }
 });
+
+//
+
+//Disable right click on map
+document.getElementById("map").addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+});
+
+//
 
 map.addLayer(vectorLayer);
 
@@ -52,7 +80,8 @@ map.on('singleclick', function(event) {
     name: 'Location ' + nextId,
     lon: coords[0],
     lat: coords[1],
-    feature: feature
+    feature: feature,
+    selected: false
   };
   
   locations.push(newLocation);
@@ -65,10 +94,22 @@ let dragSrcId = null;
 function renderLocations() {
   const locationsList = document.getElementById("locations");
   locationsList.innerHTML = "";
+  document.getElementById("locationError").textContent = "";
+
   locations.forEach(location => {
     const liLocation = document.createElement("li");
     liLocation.className = 'location-item';
     liLocation.draggable = true;
+    liLocation.title = location.name;
+
+    if (location.selected) {
+      liLocation.classList.add('selected');
+    }
+
+    liLocation.addEventListener('click', function() {
+      location.selected = !location.selected;
+      renderLocations();
+    });
 
     liLocation.addEventListener('dragstart', function() {
       dragSrcId = location.id;
@@ -84,18 +125,24 @@ function renderLocations() {
       const tgtIndex = locations.findIndex(l => l.id === location.id);
       const [moved] = locations.splice(srcIndex, 1);
       locations.splice(tgtIndex, 0, moved);
+      clearRoute();
       renderLocations();
     });
 
+    const numberSpan = document.createElement("span");
+    numberSpan.textContent = locations.indexOf(location) + 1;
+    numberSpan.classList.add("loc-number");
+
     const nameSpan = document.createElement("span");
-    nameSpan.textContent = location.name;
+    nameSpan.textContent = location.name + ' (' + location.lon.toFixed(4) + ', ' + location.lat.toFixed(4) + ')';
     nameSpan.classList.add("loc-name");
-    liLocation.appendChild(nameSpan);
 
     const renameButton = document.createElement("button");
     renameButton.textContent = "✎";
+    renameButton.title = "Rename";
     renameButton.classList.add("renameButton");
-    renameButton.addEventListener("click", function() {
+    renameButton.addEventListener("click", function(e) {
+      e.stopPropagation(w);
       const input = document.createElement("input");
       input.type = "text";
       input.value = location.name;
@@ -118,23 +165,50 @@ function renderLocations() {
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "X";
     deleteButton.classList.add("deleteButton");
-    deleteButton.addEventListener('click', function() {
+    deleteButton.title = "Delete";
+    deleteButton.addEventListener('click', function(e) {
+      e.stopPropagation();
       const index = locations.findIndex(l => l.id === location.id);
       locations.splice(index, 1);
       vectorSource.removeFeature(location.feature);
+      clearRoute();
       renderLocations();
     });
 
+    liLocation.appendChild(numberSpan);
+    liLocation.appendChild(nameSpan);
     liLocation.appendChild(renameButton);
     liLocation.appendChild(deleteButton);
     locationsList.appendChild(liLocation);
-    vectorLayer.changed();
-    emptyList();
   });
+
+  vectorLayer.changed();
+  emptyList();
+
+  document.getElementById("clearListButton").disabled = locations.length === 0;
+
+  const selectedCount = locations.filter(l => l.selected).length;
+  const calculateBtn = document.getElementById("calculateRoute");
+  calculateBtn.disabled = selectedCount < 2;
+  calculateBtn.title = selectedCount < 2 ? "Select at least 2 locations to calculate a route" : "";
 }
+
+//Longitude/latitude form, to also work by pressing Enter
 
 const longitude = document.getElementById("longitude");
 const latitude = document.getElementById("latitude");
+
+document.getElementById("longitude").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") document.getElementById("manualLocationButton").click();
+});
+
+document.getElementById("latitude").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") document.getElementById("manualLocationButton").click();
+});
+
+//
+
+//Button that clears the list
 
 document.getElementById("clearListButton").addEventListener("click", function() {
     document.getElementById("locations").innerHTML = "";
@@ -142,19 +216,112 @@ document.getElementById("clearListButton").addEventListener("click", function() 
     vectorSource.clear();
     emptyList();
     nextId = 1;
+    clearRoute();
+    renderLocations();
 })
 
-document.addEventListener("DOMContentLoaded", function() {
-    longitude.value = "";
-    latitude.value = "";
-    emptyList();
-})
+// 
 
 function emptyList() {
     const trips = document.getElementById("trips");
     if (locations.length === 0) {
         trips.textContent = "No locations selected.";
+        nextId = 1;
     } else {
         trips.textContent = "";
     }
 }
+
+document.getElementById("manualLocationButton").addEventListener("click", function() {
+    const long = parseFloat(longitude.value);
+    const lat = parseFloat(latitude.value);
+
+    if (longitude.value.trim() === "" || latitude.value.trim() === "") {
+        showError("Please enter both longitude and latitude.");
+        return;
+    }
+    if (isNaN(long) || isNaN(lat)) {
+        showError("Coordinates must be valid numbers (e.g. 23.7275, 37.9838).");
+        return;
+    }
+    if (long < -180 || long > 180) {
+        showError("Longitude must be between -180 and 180.");
+        return;
+    }
+    if (lat < -90 || lat > 90) {
+        showError("Latitude must be between -90 and 90.");
+        return;
+    }
+
+    const coords = ol.proj.fromLonLat([long, lat]);
+    const feature = new ol.Feature({
+        geometry: new ol.geom.Point(coords)
+    });
+    vectorSource.addFeature(feature);
+
+    const newLocation = {
+        id: nextId,
+        name: 'Location ' + nextId,
+        lon: long,
+        lat: lat,
+        feature: feature,
+        selected: false
+    };
+
+    locations.push(newLocation);
+    nextId++;
+    longitude.value = "";
+    latitude.value = "";
+    renderLocations();
+});
+
+function showError(message) {
+    const error = document.getElementById("locationError");
+    error.textContent = message;
+}
+
+function clearError() {
+    const error = document.getElementById("locationError");
+    error.textContent = "";
+}
+
+function showRouteError(message) {
+    document.getElementById("routeError").textContent = message;
+}
+
+function clearRouteError() {
+    document.getElementById("routeError").textContent = "";
+}
+
+document.getElementById("calculateRoute").addEventListener("click", function() {
+    const selected = locations.filter(l => l.selected);
+
+    if (selected.length < 2) {
+        showRouteError("Please select at least 2 locations to calculate a route.");
+        return;
+    }
+
+    if (routeFeature) {
+        vectorSource.removeFeature(routeFeature);
+    }
+
+    const coords = selected.map(l => ol.proj.fromLonLat([l.lon, l.lat]));
+
+    routeFeature = new ol.Feature({
+    geometry: new ol.geom.LineString(coords),
+    type: 'route'
+});
+
+    vectorSource.addFeature(routeFeature);
+});
+
+let routeFeature = null;
+
+function clearRoute() {
+    if (routeFeature) {
+        vectorSource.removeFeature(routeFeature);
+        routeFeature = null;
+    }
+}
+
+renderLocations();
