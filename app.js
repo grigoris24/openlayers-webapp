@@ -217,12 +217,28 @@ function renderLocations() {
   emptyList();
 
   document.getElementById("clearListButton").disabled = locations.length === 0;
+  document.getElementById("selectAllButton").disabled = locations.length === 0;
+  document.getElementById("unselectAllButton").disabled = locations.length === 0;
 
   const selectedCount = locations.filter(l => l.selected).length;
+  document.getElementById("selectAllButton").disabled = locations.length === 0 || selectedCount === locations.length;
+  document.getElementById("unselectAllButton").disabled = selectedCount === 0;
   const calculateBtn = document.getElementById("calculateRoute");
   calculateBtn.disabled = selectedCount < 2;
   calculateBtn.title = selectedCount < 2 ? "Select at least 2 locations to calculate a route" : "";
 }
+//
+
+//Select all and unselect all buttons
+document.getElementById("selectAllButton").addEventListener("click", function() {
+    locations.forEach(l => l.selected = true);
+    renderLocations();
+});
+
+document.getElementById("unselectAllButton").addEventListener("click", function() {
+    locations.forEach(l => l.selected = false);
+    renderLocations();
+});
 //
 
 //Longitude/latitude form, to also work by pressing Enter
@@ -335,8 +351,8 @@ function clearRoute() {
 
 //Fix for map when scrolling far left or far right(it would not add pins correctly)
 function addLocation(lon, lat) {
-    lon = ((lon + 180) % 360 + 360) % 360 - 180;
-    
+    lon = ((lon + 180) % 360 + 360) % 360 - 180; //Since longitude goes from -180 to 180, and the map can scroll, this fixes the correct pin location
+    //(eg if we click on -200, we do -200+180=-20, then -20%360=-20 because js gives negative, then -20+360=340, then 340%360=340 and finally 340-180=160)
     const coords = ol.proj.fromLonLat([lon, lat]);
     const feature = new ol.Feature({
         geometry: new ol.geom.Point(coords)

@@ -148,8 +148,6 @@ html, body {
 
 #clearListButton {
     display: block;
-    margin-left: auto;
-    margin-bottom: 10px;
     background: transparent;
     color: #e74c3c;
     border: 1px solid #e74c3c;
@@ -168,6 +166,56 @@ html, body {
 #clearListButton:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+    background: transparent;
+    color: #e74c3c;
+}
+
+#selectAllButton {
+    display: block;
+    background: transparent;
+    color: #4fdb9a;
+    border: 1px solid #4fdb9a;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+#selectAllButton:hover {
+    background: #4fdb9a;
+    color: #1a1a2e;
+}
+
+#selectAllButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: transparent;
+    color: #4fdb9a;
+}
+
+#unselectAllButton {
+    display: block;
+    background: transparent;
+    color: #f7a24f;
+    border: 1px solid #f7a24f;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+#unselectAllButton:hover {
+    background: #f7a24f;
+    color: #1a1a2e;
+}
+
+#unselectAllButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: transparent;
+    color: #f7a24f;
 }
 
 .error-msg {
@@ -316,7 +364,6 @@ html, body {
 
 #openSidebar,
 #closeSidebar {
-  background: #4f6ef7;
   color: white;
   border: none;
   border-radius: 8px;
@@ -327,6 +374,7 @@ html, body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   width: 36px;
   height: 36px;
+  background: #1a34aa;
 }
 
 #openSidebar:hover,
@@ -338,4 +386,11 @@ html, body {
 #openSidebar:active,
 #closeSidebar:active {
   transform: translateY(0);
+}
+
+.listButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-bottom: 10px;
 }
